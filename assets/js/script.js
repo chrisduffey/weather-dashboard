@@ -55,8 +55,8 @@ var loadSearchLocation = function() {
     }
 };
 
-var currentWeatherSection = function(cityName) {
-    fetch('https://api.openweathermap.org/data/2.5/weather?q={cityname}&appid={APIkey}')
+var currentWeatherSection = function(cityname) {
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${APIkey}`)
     .then(function(response){
         return response.json();
     })
@@ -64,7 +64,7 @@ var currentWeatherSection = function(cityName) {
         var cityLon = response.coord.lon;
         var cityLat = response.coord.lat;
 
-        fetch('https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={APIkey}')
+        fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${cityLat}&lon=${cityLon}&appid=${APIkey}`)
     })
     
 }
