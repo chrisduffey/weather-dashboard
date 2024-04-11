@@ -74,29 +74,29 @@ const currentWeatherSection = (cityName) => {
             const currentWeatherCont = document.getElementById("current-weather-cont");
             currentWeatherCont = classList.add("current-weather-cont");
 
-            let currentTitle = document.getElementById("current-header");
+            const currentTitle = document.getElementById("current-header");
             let currentDay = moment().format("MM/DD/YYYY");
             currentTitle.textContent = `${cityName} (${currentDay})`;
 
-            let currentIcon = document.getElementById("current-weather-icon");
+            const currentIcon = document.getElementById("current-weather-icon");
             currentIcon.classList.add("current-weather-icon");
-            let currentIconCode = response.current.weather[0].icon;
+            const currentIconCode = response.current.weather[0].icon;
             currentIcon.setAttribute("src", `https://openweathermap.org/img/wn/${currentIconCode}@2x.png`);
 
-            let currentTemperature = document.getElementById("current-temperature");
+            const currentTemperature = document.getElementById("current-temperature");
             currentTemperature.textContent = "Temperature: " + response.current.temp + " \u00B0F";
 
-            let currentHumidity = document.getElementById("current-humidity");
+            const currentHumidity = document.getElementById("current-humidity");
             currentHumidity.textContent = "Humidity: " + response.current.humidity + "%";
 
-            let currentWindSpeed = document.getElementById("current-wind-speed");
+            const currentWindSpeed = document.getElementById("current-wind-speed");
             currentWindSpeed.textContent = "Wind Speed: " + response.current.wind_speed + "MPH";
 
-            let currentUvIndex = document.getElementById("currnet-uv-index");
+            const currentUvIndex = document.getElementById("currnet-uv-index");
             currentUvIndex.textContent = "UV: " + response.current.uvi;
 
         })
-        .catch(function (error) {
+        .catch(error => {
             console.error('Error fetching data:', error);
         });
 };
@@ -104,7 +104,36 @@ const currentWeatherSection = (cityName) => {
 const fiveDayForecastSection = (cityName) =>{
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`)
 
-    .then 
+    .then(response => response.json())
+    .then(response => {
+        var cityLon = response.coord.lon;
+        var cityLat = response.coord.lat;
+
+        return fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${cityLat}&lon=${cityLon}&exclude=minutely,hourly,alerts&units=imperial&appid=${apiKey}`)
+
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(response) {
+            console.log(response);
+
+            var futureCard = document.getElementById("future-forecast-title");
+            futureForecastTitle.innerText = "5-Day Forecast";
+
+            for (var i = 1; i <= 5; i++) {
+                var futureCard = document.createElement("div");
+                futureCard.classList.add("card", "future-card-details");
+
+                var futureDate = document.createElement("p");
+                futureDate.innerText = moment().add(i, "d").format("MM/DD/YYYY");
+
+                var futureIcon = document.createElement("img");
+                futureIcon.classList.add("future-icon");
+                var futureIconCode = response.daily[i].temp.day + "\u00B0F"
+            }
+        })
+        
+    }
 }
 
 
