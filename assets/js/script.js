@@ -4,18 +4,42 @@ let savedLocations = [];
 
 
 // searched locations
-const recentSearchs = document.querySelector('.recent-search');
-recentSearchs.forEach(element => {
-    if (element.textContent.includes(cityName)) {
-        element.parentNode.removeChild(element);
+function removeExistingSearch(cityName) {
+    const recentSearchElements = document.querySelectorAll('.recent-search');
+    recentSearchElements.forEach(element =>{
+        if (element.textContent === cityName) {
+            element.parentNode.removeChild(element);
+        }
+    });
+}
+document.getElementById("search-form").addEventListener("submit", function(event) { 
+    event.preventDefault();
+    
+    
+    const cityName = document.getElementById("search-input").value.trim();
+    
+    if(cityName===""){
+        alert("Please enter name of city.");
+        return;
     }
+    if (savedLocations.includes(cityName)){
+        alert("This city is already in your recent searches.");
+        return;
+    }
+
+    removeExistingSearch(cityName);
+
+    savedLocations.push(cityName);
+    localStorage.setItem("savedLocations", JSON.stringify(savedLocations));
 });
-
-
-// city input
 const searchHistoryInput = document.createElement("p");
 searchHistoryInput.classList.add("recent-search");
 searchHistoryInput.textContent = cityName;
+
+    // city input
+    const searchHistoryContainer = document.getElementById("search-history-container");
+    searchHistoryContainer.appendChild(searchHistoryInput);
+
 
 // create container for searches
 const searchContainerEL = document.getElementById('recent-search-container');
@@ -24,39 +48,21 @@ searchContainer.classList.add('recent-search-container');
 searchContainer.appendChild(searchHistoryInput);
 searchContainerEL.appendChild(searchContainer);
 
-
 if (savedLocations.length > 0) {
     const recentSavedLocations = localStorage.getItem("savedLocations");
-    savedLocations = json.parse(recentSavedLocations);
+    savedLocations = JSON.parse(recentSavedLocations);
 }
 
+if (localStorage.getItem("savedLocations")) {
+    savedLocations = JSON.parse(localStorage.getItem("savedLocations"));
+}
 
-
-// add city to array
-savedLocations.push(cityName);
-localStorage.setItem("savedLocations", JSON.stringify(savedLocations));
-
-// reset search
-document.getElementById("search-input").value = "";
-
-
-
-// put saved location in history div
-const loadSearchLocation = () => {
-    let savedLoctionHisotry = localStorage.getItem("savedLocations");
-
-    // if statement for no prevoise saved location
-    if (!savedLoctionHisotry) {
+const loadSearchHistory = () => {
+    let savedLocationsHistory = localStorage.getItem("savedLocations");
+    if (!savedLocationsHistory) {
         return false;
-
-    }
-    savedLoctionHisotry = JSON.parse(savedLoctionHisotry);
-
-    for (var i = 0; i < savedLoctionHisotry.length; i++) {
-        searchHistoryList(savedLoctionHisotry[i]);
     }
 };
-
 const currentWeatherSection = (cityName) => {
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${APIkey}`)
         .then(response => response.json())
@@ -129,18 +135,41 @@ const fiveDayForecastSection = (cityName) =>{
 
                 var futureIcon = document.createElement("img");
                 futureIcon.classList.add("future-icon");
-                var futureIconCode = response.daily[i].temp.day + "\u00B0F"
+                var futureIconCode = response.daily[i].weather[0].icon;
+                futureIcon.src = `https://openweathermap.org/img/wn/${futureIconCode}@2x.png`;
+
+                var futureTemp = document.getElementById("p");
+                futureTemp.innerText = "Temp: " + response.daily[i].temp.day + "\u00B0F";
+
+                var futureHumidity = document.createElement("p");
+                futureHumidity.innerText = "Humidity: " + response.daily[i].humidity + "%";
+
+                futureCard.appendChild(futureDate);
+                futureCard.appendChild(futureIcon);
+                futureCard.appendChild(futureTemp);
+                futureCard.appendChild(futureHumidity);
+                
+                document.getElementById("future-forecast-container").appendChild(futureCard);
+
             }
         })
         
+    })
+};
+
+document.getElementById("search-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    var cityName = document.getElementById("search-input").value;
+
+    if (cityName === "" || cityName == null) {
+        alert("Please enter name of city.");
+        event.preventDefault();
+
+    }else {
+        currentWeatherSection(cityName);
+        fiveDayForecastSection(cityName);
     }
-}
-
-
-         
-                
-
-
-
-
-
+});
+loadSearchHistory(); 
+// })                
